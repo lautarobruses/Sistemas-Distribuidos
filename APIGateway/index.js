@@ -2,21 +2,7 @@ const http = require('http')
 const url = require('url')
 
 const app = http.createServer(async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200, {
-            'Access-Control-Allow-Origin': '*', // O ajusta el origen permitido según tus necesidades
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE', // Los métodos permitidos
-            'Access-Control-Allow-Headers': 'Content-Type', // Los encabezados permitidos
-            'Access-Control-Allow-Credentials': 'true', // Si se permiten credenciales (cookies, autenticación)
-        });
-        res.end();
-        return;
-    }
+    cors(res)
 
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
 
@@ -26,6 +12,11 @@ const app = http.createServer(async (req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Hola, mundo!\n');
     }  
+
+    if (req.method === 'OPTIONS') {
+        res.end();
+        return;
+    }
     
     if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
@@ -57,6 +48,13 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Servidor HTTP escuchando en el puerto ${PORT}`);
 });
+
+const cors = (res) =>{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+}
 
 const llamaBackend = async (id) => {
     try {
