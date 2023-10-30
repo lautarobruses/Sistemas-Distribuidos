@@ -8,7 +8,7 @@ const app = http.createServer((req, res) => {
 
     if (req.method === 'GET' && req.url === '/') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Hola, mundo!\n');
+        res.end('Hola soy el BACK!\n');
     }  
 
     if (req.method === 'OPTIONS') {
@@ -19,9 +19,9 @@ const app = http.createServer((req, res) => {
     if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
-            const respuesta = {
-                res: "hola soy el back!"
-            };
+            const respuesta = "hola soy el back";
+
+            console.log ("Respuesta del back "+respuesta);
 
             // Convierte el objeto en una cadena JSON
             const respuestaJSON = JSON.stringify(respuesta);
@@ -39,7 +39,7 @@ const app = http.createServer((req, res) => {
 const PORT = 3001;
 
 app.listen(PORT, () => {
-    console.log(`Servidor HTTP escuchando en el puerto ${PORT}`);
+    console.log(`Backend HTTP escuchando en el puerto ${PORT}`);
 });
 
 

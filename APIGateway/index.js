@@ -10,7 +10,7 @@ const app = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && req.url === '/') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Hola, mundo!\n');
+        res.end('Hola soy la API-Gateway!\n');
     }  
 
     if (req.method === 'OPTIONS') {
@@ -24,7 +24,7 @@ const app = http.createServer(async (req, res) => {
             try {
                 respuesta = await llamaBackend(id)
 
-                console.log(respuesta);
+                console.log("RESPUESTA DE API "+respuesta);
     
                 // Convierte el objeto en una cadena JSON
                 const respuestaJSON = JSON.stringify(respuesta);
@@ -46,7 +46,7 @@ const app = http.createServer(async (req, res) => {
 const PORT = 3000;
 
 app.listen(PORT, () => {
-    console.log(`Servidor HTTP escuchando en el puerto ${PORT}`);
+    console.log(`API-Gateway HTTP escuchando en el puerto ${PORT}`);
 });
 
 const cors = (res) =>{
