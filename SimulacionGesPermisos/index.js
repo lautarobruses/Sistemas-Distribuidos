@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url')
 
-const app = http.createServer(async(req, res) => {
+const app = http.createServer((req, res) => {
 
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
     const queryParams = parsedUrl.query
@@ -19,21 +19,25 @@ const app = http.createServer(async(req, res) => {
     if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
-            try {
-                respuesta = await llamaGestionPermisos(id)
+           
+            var respuesta;
 
-                console.log("RESPUESTA GESTION DE PERMISOS "+respuesta);
-    
-                // Convierte el objeto en una cadena JSON
-                const respuestaJSON = JSON.stringify(respuesta);
-    
-                // Establece el encabezado "Content-Type" y envía la respuesta JSON
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(respuestaJSON);
-            } catch (error) {
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
-                res.end('el ID no existe!\n');
-            }
+            if (id == '333') 
+                respuesta = [2,5,7];
+            else
+                if (id == '444')
+                    respuesta = [3,4,8];
+                else
+                respuesta = [0];
+               
+            console.log ("Respuesta del GesPermisosclear "+respuesta);
+
+            // Convierte el objeto en una cadena JSON
+            const respuestaJSON = JSON.stringify(respuesta);
+
+            // Establece el encabezado "Content-Type" y envía la respuesta JSON
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(respuestaJSON);
         }
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -41,10 +45,10 @@ const app = http.createServer(async(req, res) => {
     }  
 });
 
-const PORT = 3001;
+const PORT = 5000;
 
 app.listen(PORT, () => {
-    console.log(`Backend HTTP escuchando en el puerto ${PORT}`);
+    console.log(`Simulador de Gestion de Permisos HTTP escuchando en el puerto ${PORT}`);
 });
 
 
@@ -55,16 +59,4 @@ const cors = (res) =>{
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-}
-
-
-const llamaGestionPermisos = async (id) => {
-    try {
-        const response = await fetch(`http://localhost:5000/api/user/?id=${id}`, {
-            method: 'POST'
-        });
-        return await response.json();
-    } catch (error) {
-        throw new Error(`Error: ${error.message}`)
-    }
 }
