@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Página Web</title>
+</head>
+<body>
+    <p>Ingrese ID
+    <input type="text" id="nroId" name="nroId" />
+    <button id="enviarBtn">Enviar</button></p>
+    <div id="respuesta"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const enviarBtn = document.getElementById('enviarBtn');
+        const respuestaDiv = document.getElementById('respuesta');
+
+        enviarBtn.addEventListener('click', function () {
+            // Datos que deseas enviar en la solicitud POST
+
+            var campo = document.getElementById("nroId").value;
+
+            fetch(`http://localhost:3000/api/user/?id=${campo}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Ajusta los encabezados según sea necesario
+                },
+                body: JSON.stringify(campo)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Maneja la respuesta de la solicitud aquí
+                respuestaDiv.innerHTML = `Pisos habilitados para id ${campo} : ${JSON.stringify(data)}`;
+            })
+            .catch(error => {
+                // Maneja cualquier error que ocurra durante la solicitud
+                respuestaDiv.innerHTML = `Error: ${error.message}+ahora`;
+            });
+        });
+    });
+    </script>
+</body>
+</html>
