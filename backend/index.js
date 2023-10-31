@@ -2,7 +2,6 @@ const http = require('http');
 const url = require('url')
 
 const app = http.createServer((req, res) => {
-
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
     const queryParams = parsedUrl.query
 
