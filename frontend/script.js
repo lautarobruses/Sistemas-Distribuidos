@@ -17,6 +17,7 @@ let display = document.getElementById('display');
 
 let estadoActual = estados.INICIO;
 
+//================================ FUNCIONES ===========================================
 const cambiarEstado = (nuevoEstado) => {
     estadoActual = nuevoEstado;
     cambiarTeclado()
@@ -37,7 +38,7 @@ const cambiarEstado = (nuevoEstado) => {
     }
 }
 
-const cambiarTeclado = () =>{
+const cambiarTeclado = () => {
     switch (estadoActual) {
         case "Inicio":
             tecladoPisos.style.display = 'none'
