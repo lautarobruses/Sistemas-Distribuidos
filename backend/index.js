@@ -9,6 +9,7 @@ const app = http.createServer(async(req, res) => {
     if (req.method === 'GET' && req.url === '/') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Hola soy el BACK!\n');
+        return
     }  
 
     if (req.method === 'OPTIONS') {
@@ -16,28 +17,62 @@ const app = http.createServer(async(req, res) => {
         return;
     }
     
-    if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
+    if (req.method === 'GET' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
             try {
-                respuesta = await llamaGestionPermisos(id)
+                console.log(id)
+                const pisosResponse = await fetch(`http://localhost:5000/visitantes/permisos?id=${id}`, {
+                    method: 'GET'
+                });
+                const informacionResponse = await fetch(`http://localhost:5000/visitantes/informacion?id=${id}`, {
+                    method: 'GET'
+                });
 
-                console.log("RESPUESTA GESTION DE PERMISOS "+respuesta);
+                if (!pisosResponse.ok || !informacionResponse.ok) {
+                    // esto podria meterlo dentro un unico writeHead() y res.end()
+                    if (pisosResponse.status === 404 || informacionResponse.status === 404) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'El ID no existe' }));
+                    } else if (pisosResponse.status === 500 || informacionResponse.status === 500) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Error interno del servidor' }));
+                    } else {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Error en la solicitud' }));
+                    }
+                } else {
+                    // Si llega a este punto, ambas solicitudes fueron exitosas
+                    const pisos = await pisosResponse.json();
+                    const informacion = await informacionResponse.json();
+
+                    // let pisos = {
+                    //     pisos:[1,2,4]
+                    // }
+                    // let informacion = 
+                    //     { 
+                    //         "id":"A001", 
+                    //         "nombre":"Nombre Completo", 
+                    //         "edad":25, 
+                    //         "email":"email@gmail.com", "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
+                    //     }
+                    let arrayPisos = pisos.pisos
+                    const respuesta = { pisos:arrayPisos, informacion };
+                    const respuestaJSON = JSON.stringify(respuesta);
     
-                // Convierte el objeto en una cadena JSON
-                const respuestaJSON = JSON.stringify(respuesta);
-    
-                // Establece el encabezado "Content-Type" y envía la respuesta JSON
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(respuestaJSON);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(respuestaJSON);
+                }
             } catch (error) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('el ID no existe!\n');
             }
+            return
         }
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Pagina no encontrada\n');
+        return
     }  
 });
 
@@ -57,14 +92,29 @@ const cors = (res) =>{
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
-
+// no los vamos a usar mas. 
 const llamaGestionPermisos = async (id) => {
     try {
-        const response = await fetch(`http://localhost:5000/api/user/?id=${id}`, {
-            method: 'POST'
+        // CAMBIAR LA URL
+        const response = await fetch(`http://localhost:5000/visitantes/permisos?id=${id}`, {
+            method: 'GET'
+        });
+        return await response.json();
+
+    } catch (error) {
+        throw new Error(`Error: ${error.message}`)
+    }
+}
+
+const llamaInformacionUsuario = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:5000/visitantes/informacion?id=${id}`, {
+            method: 'GET'
         });
         return await response.json();
     } catch (error) {
         throw new Error(`Error: ${error.message}`)
     }
 }
+
+

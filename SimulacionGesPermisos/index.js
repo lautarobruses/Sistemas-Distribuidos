@@ -7,8 +7,10 @@ const app = http.createServer((req, res) => {
     const queryParams = parsedUrl.query
 
     if (req.method === 'GET' && req.url === '/') {
+        console.log('peticion 0')
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Hola soy el BACK!\n');
+        return
     }  
 
     if (req.method === 'OPTIONS') {
@@ -16,19 +18,21 @@ const app = http.createServer((req, res) => {
         return;
     }
     
-    if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
+    if (req.method === 'GET' && parsedUrl.pathname === `/visitantes/permisos`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
+
+            console.log('recibe peticion 1')
            
             var respuesta;
 
             if (id == '333') 
-                respuesta = [2,5,7];
+                respuesta = {pisos:[2,5,7]};
             else
                 if (id == '444')
-                    respuesta = [3,4,8];
+                    respuesta = {pisos:[3,4,8]};
                 else
-                respuesta = [0];
+                respuesta = {pisos:[0]};
                
             console.log ("Respuesta del GesPermisosclear "+respuesta);
 
@@ -38,10 +42,51 @@ const app = http.createServer((req, res) => {
             // Establece el encabezado "Content-Type" y envía la respuesta JSON
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(respuestaJSON);
+            return
         }
-    } else {
+    }
+    if (req.method === 'GET' && parsedUrl.pathname === `/visitantes/informacion`) {
+        const id = queryParams.id; // Accede al parámetro de consulta "id"
+        if (id) {
+
+            console.log('recibe peticion 2')
+           
+            var respuesta;
+
+            if (id == '333') {
+                respuesta = { 
+                    "id":id, 
+                    "nombre":"Nombre Completo", 
+                    "edad":25, 
+                    "email":"email@gmail.com", "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
+                    };
+                }
+            else{
+                respuesta = { 
+                        "id":id, 
+                        "nombre":"EL IGNA", 
+                        "edad":26, 
+                        "email":"email@gmail.com",
+                        "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
+                        }
+                }
+               
+            console.log ("Respuesta del GesPermisosclear ",{respuesta});
+
+            // Convierte el objeto en una cadena JSON
+            const respuestaJSON = JSON.stringify(respuesta);
+
+            // Establece el encabezado "Content-Type" y envía la respuesta JSON
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(respuestaJSON);
+            return
+        }
+    } 
+    else {
+        console.log('peticion 3')
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Pagina no encontrada\n');
+        return
     }  
 });
 

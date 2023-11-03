@@ -11,6 +11,7 @@ const app = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Hola soy la API-Gateway!\n');
+        return 
     }  
 
     if (req.method === 'OPTIONS') {
@@ -18,20 +19,27 @@ const app = http.createServer(async (req, res) => {
         return;
     }
     
-    if (req.method === 'POST' && parsedUrl.pathname === `/api/user/`) {
+    if (req.method === 'GET' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
             try {
-                respuesta = await llamaBackend(id)
-
-                console.log("RESPUESTA DE API "+respuesta);
-    
-                // Convierte el objeto en una cadena JSON
-                const respuestaJSON = JSON.stringify(respuesta);
-    
-                // Establece el encabezado "Content-Type" y envía la respuesta JSON
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(respuestaJSON);
+                response = await fetch(`http://localhost:3001/api/user/?id=${id}`, {
+                    method: 'GET'
+                });
+                if (!response.ok){
+                    console.log('error')
+                    // pasamos el mismo error que nos tiro el back
+                    res.writeHead(response.status, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Error' }));
+                }
+                else{
+                    info = await response.json() 
+                    console.log("RESPUESTA DE API ",response);
+                    const respuestaJSON = JSON.stringify(info);
+                    // Establece el encabezado "Content-Type" y envía la respuesta JSON
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(respuestaJSON);
+                }
             } catch (error) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('el ID no existe!\n');
@@ -40,7 +48,8 @@ const app = http.createServer(async (req, res) => {
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Pagina no encontrada\n');
-    }  
+    }
+    return  
 });
 
 const PORT = 3000;
@@ -59,7 +68,7 @@ const cors = (res) =>{
 const llamaBackend = async (id) => {
     try {
         const response = await fetch(`http://localhost:3001/api/user/?id=${id}`, {
-            method: 'POST'
+            method: 'GET'
         });
         return await response.json();
     } catch (error) {
