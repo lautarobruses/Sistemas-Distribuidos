@@ -47,11 +47,44 @@ html {
     margin-bottom: 32px;
 }
 
+#pantallaInicio {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+}
+
+#display {
+    color: var(--black);
+    width: 800px;
+    height: 80px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 48px;
+    text-align: center;
+    border-radius: 8px;
+    
+}
+
 #pantalla {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    gap: 0px;
+}
+
+#pantallaAscensor {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 0px;
 }
 
@@ -66,6 +99,14 @@ html {
     color: var(--black);
     font-size: 48px;
     opacity: 0.75;
+}
+
+#ascensor {
+    font-size: 128px;
+}
+
+#nroAscensor {
+    font-size: 160px;
 }
 
 #tecladoContainer {
@@ -86,6 +127,11 @@ html {
     display: none;
 }
 
+button {
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+}
+
 .pisoBtn {
     background-color: var(--grey);
     color: var(--black);
@@ -99,6 +145,20 @@ html {
 .pisoBtn:hover {
     background-color: var(--light-cream);
     border: 2px solid var(--black);
+}
+
+.pisoBtn.available {
+    background-color: var(--light-green);
+}
+
+.pisoBtn.not-available {
+    background-color: var(--grey);
+    cursor: not-allowed;
+}
+
+.pisoBtn.selected {
+    background-color: var(--yellow);
+    border: 3px solid var(--black);
 }
 
 #tecladoNumerico {
@@ -115,6 +175,7 @@ html {
     height: 120px;
     border-radius: 16px;
     border: 2px solid var(--black);
+    cursor: pointer;
 }
 
 .numBtn:hover {
@@ -126,9 +187,8 @@ html {
     width: 532px;
 }
 
+
 #aceptarBtn {
-    background-color: var(--blue);
-    color: var(--white);
     font-size: 40px;
     width: 432px;
     height: 96px;
@@ -137,6 +197,18 @@ html {
     border: 2px solid var(--black);
 }
 
-#aceptarBtn:hover {
+.aceptarBtn.available {
+    background-color: var(--blue);
+    color: var(--white);
+}
+
+.aceptarBtn.not-available {
+    background-color: var(--grey);
+    color: var(--black);
+    cursor: not-allowed;
+}
+
+.aceptarBtn.available:hover {
     background-color: var(--dark-blue);
 }
+

@@ -14,13 +14,23 @@
     <div id="responseDiv"></div>
     <div id="container">
         <div id="pantallaContainer">
-            <section id="pantalla">
-                <h1></h1>
-            </section>
+            <div id="pantallaInicio">
+                <h2 class="textoPrincipal">Ingrese su ID</h2>
+                <input type="text" id="display" disabled>
+            </div>
+
+            <div id="pantalla">
+                <!--Se rellena dinamicamente en SCRIPT.JS-->
+            </div> 
+            
+
+            <div id="pantallaAscensor">
+                <!--Se rellena dinamicamente en SCRIPT.JS-->
+            </div>
         </div>
         <div id="tecladoContainer">
             <div id="tecladoPisos">
-                <button class="pisoBtn" id="PB">Planta baja</button>
+                <!-- <button class="pisoBtn" id="PB">Planta baja</button> -->
                 <button class="pisoBtn" id="1">Piso 1</button>
                 <button class="pisoBtn" id="2">Piso 2</button>
                 <button class="pisoBtn" id="3">Piso 3</button>
@@ -32,6 +42,7 @@
                 <button class="pisoBtn" id="9">Piso 9</button>
                 <button class="pisoBtn" id="10">Piso 10</button>
                 <button class="pisoBtn" id="11">Piso 11</button>
+                <button class="pisoBtn" id="12">Piso 12</button>
             </div>
             <div id="tecladoNumerico">
                 <button class="numBtn" id="1">1</button>
@@ -46,9 +57,10 @@
                 <button class="numBtn" id="btn0">0</button>
                 <button class="numBtn" id="del">DEL</button>
             </div>
-            <button id="aceptarBtn">Aceptar</button>
+            <button class="aceptarBtn available" id="aceptarBtn">Aceptar</button>
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="listeners.js"></script>
 </body>
 </html>
