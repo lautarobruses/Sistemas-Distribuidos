@@ -19,17 +19,19 @@
 
             var campo = document.getElementById("nroId").value;
 
-            fetch(`http://localhost:3000/api/user/?id=${campo}`, {
+            const datos = {"piso":campo};
+
+            fetch(`http://localhost:3000/api/piso/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json' // Ajusta los encabezados según sea necesario
                 },
-                body: JSON.stringify(campo)
+                body: JSON.stringify(datos),
             })
             .then(response => response.json())
             .then(data => {
                 // Maneja la respuesta de la solicitud aquí
-                respuestaDiv.innerHTML = `Pisos habilitados para id ${campo} : ${JSON.stringify(data)}`;
+                respuestaDiv.innerHTML = `Para ir al piso ${campo} subirse al ascensor : ${JSON.stringify(data)}`;
             })
             .catch(error => {
                 // Maneja cualquier error que ocurra durante la solicitud

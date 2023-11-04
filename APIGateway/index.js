@@ -47,14 +47,27 @@ const app = http.createServer(async (req, res) => {
         }
     }
 
-    if (req.method === 'GET' && parsedUrl.pathname === `/api/piso/`) {
+    if (req.method === 'POST' && parsedUrl.pathname === `/api/piso/`) {
+            
+        var requestBody = '';
 
-        const piso = queryParams.piso; // Accede al parámetro de consulta "piso"
+        req.on('data', (chunk) => {
+        requestBody += chunk;  // Recopila los datos del cuerpo de la solicitud
+        });
+        
+        req.on('end', async() => {
 
-        if (piso) {
             try {
-                response = await fetch(`http://localhost:3001/api/piso/?piso=${piso}`, {
-                    method: 'POST'
+                console.log ("Petición a la API-Gateway "+ requestBody);
+                const requestData = JSON.parse(requestBody);
+                const piso = requestData.piso;
+                const datos = {"piso":piso};
+                const response = await fetch(`http://localhost:3001/api/piso/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(datos),
                 });
                 if (!response.ok){
                     console.log('error')
@@ -64,8 +77,9 @@ const app = http.createServer(async (req, res) => {
                 }
                 else{
                     info = await response.json() 
-                    console.log("RESPUESTA DE API ",response);
                     const respuestaJSON = JSON.stringify(info);
+                    console.log ("Respuesta de la API-Gateway "+ respuestaJSON);
+
                     // Establece el encabezado "Content-Type" y envía la respuesta JSON
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(respuestaJSON);
@@ -74,11 +88,14 @@ const app = http.createServer(async (req, res) => {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('Piso no encontrado!\n');
             }
-        }
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Pagina no encontrada\n');
+            
+        }); 
     }
+        else {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Pagina no encontrada\n');
+        }
+
 
     return  
 });
@@ -96,13 +113,3 @@ const cors = (res) =>{
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
-const llamaBackend = async (id) => {
-    try {
-        const response = await fetch(`http://localhost:3001/api/user/?id=${id}`, {
-            method: 'GET'
-        });
-        return await response.json();
-    } catch (error) {
-        throw new Error(`Error: ${error.message}`)
-    }
-}

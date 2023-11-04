@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url')
 
-const app = http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
 
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
     const queryParams = parsedUrl.query
@@ -9,7 +9,7 @@ const app = http.createServer((req, res) => {
     if (req.method === 'GET' && req.url === '/') {
         console.log('peticion 0')
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Hola soy el BACK!\n');
+        res.end('Hola soy el Simuldor del Ascensor!\n');
         return
     }  
 
@@ -17,35 +17,50 @@ const app = http.createServer((req, res) => {
         res.end();
         return;
     }
-    
+
     if (req.method === 'POST' && parsedUrl.pathname === `/api/selectorAscensor/`) {
-        const piso = queryParams.piso; // Accede al parámetro de consulta "piso"
-        if (piso) {
+        let requestBody = '';
 
-            console.log('recibe peticion 1')
-           
-            var respuesta;
+        req.on('data', (chunk) => {
+        requestBody += chunk;  // Recopila los datos del cuerpo de la solicitud
+        });
 
-            if (piso < '3') 
-                respuesta = {"id":1};
-            else
-                if (piso >= '7')
-                    respuesta = {"id":2};
+        req.on('end', () => {
+        try{ 
+            const requestData = JSON.parse(requestBody);
+            console.log ("Petición al Simulador de Ascensor "+ requestBody);
+            const piso = requestData.piso;
+
+            if (piso!=undefined) {
+    
+                var respuesta;
+
+                if (piso < '3') 
+                    respuesta = {"id":1};
                 else
-                respuesta = {"id":3};
-               
-            console.log ("Respuesta del GesAscensor "+respuesta);
+                    if (piso >= '7')
+                        respuesta = {"id":2};
+                    else
+                    respuesta = {"id":3};
 
-            // Convierte el objeto en una cadena JSON
-            const respuestaJSON = JSON.stringify(respuesta);
+                // Convierte el objeto en una cadena JSON
+                const respuestaJSON = JSON.stringify(respuesta);
+                console.log ("Respuesta del Simulador de Ascensor "+ respuestaJSON);
 
-            // Establece el encabezado "Content-Type" y envía la respuesta JSON
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(respuestaJSON);
-            return
-        }
+                // Establece el encabezado "Content-Type" y envía la respuesta JSON
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(respuestaJSON);
+                return
+            }
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            console.log("error");
+            res.end(JSON.stringify({ error: 'Solicitud no válida' }));
+            return;
+          }
+        });
     }
-   
+
     else {
         console.log('peticion 3')
         res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -56,7 +71,7 @@ const app = http.createServer((req, res) => {
 
 const PORT = 4500;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Simulador de Ascensor HTTP escuchando en el puerto ${PORT}`);
 });
 

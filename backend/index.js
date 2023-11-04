@@ -71,11 +71,25 @@ const app = http.createServer(async(req, res) => {
     }  
 
     if (req.method === 'POST' && parsedUrl.pathname === `/api/piso/`) {
-        const piso = queryParams.piso; // Accede al parámetro de consulta "piso"
-        if (piso) {
+        var requestBody = '';
+
+        req.on('data', (chunk) => {
+        requestBody += chunk;  // Recopila los datos del cuerpo de la solicitud
+        });
+
+        req.on('end', async() => {
+
             try {
-                const ascensorResponse = await fetch(`http://localhost:4500/api/selectorAscensor/?piso=${piso}`, {
-                    method: 'POST'
+                console.log ("Petición al BackEnd "+ requestBody);
+                const requestData = JSON.parse(requestBody);
+                const piso = requestData.piso;
+                const datos = {"piso":piso};
+                const ascensorResponse = await fetch(`http://localhost:4500/api/selectorAscensor/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body:JSON.stringify(datos),
                 });
 
                 if (!ascensorResponse.ok) {
@@ -94,10 +108,11 @@ const app = http.createServer(async(req, res) => {
                     // Si llega a este punto, solicitud exitosa
                     const ascensor = await ascensorResponse.json();
 
-                    let as = ascensor.id
+                    let id = ascensor.id
 
-                    const respuesta = { as };
+                    const respuesta = { id };
                     const respuestaJSON = JSON.stringify(respuesta);
+                    console.log ("Respuesta del Backend "+ respuestaJSON);
     
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(respuestaJSON);
@@ -106,7 +121,7 @@ const app = http.createServer(async(req, res) => {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('Piso no existe!\n');
             }
-        }
+        });
     } else {
         console.log("falla")
         res.writeHead(404, { 'Content-Type': 'text/plain' });
