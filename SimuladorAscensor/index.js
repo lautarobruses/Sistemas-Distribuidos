@@ -45,43 +45,7 @@ const app = http.createServer((req, res) => {
             return
         }
     }
-    if (req.method === 'GET' && parsedUrl.pathname === `/visitantes/informacion`) {
-        const id = queryParams.id; // Accede al parámetro de consulta "id"
-        if (id) {
-
-            console.log('recibe peticion 2')
-           
-            var respuesta;
-
-            if (id == '333') {
-                respuesta = { 
-                    "id":id, 
-                    "nombre":"Nombre Completo", 
-                    "edad":25, 
-                    "email":"email@gmail.com", "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
-                    };
-                }
-            else{
-                respuesta = { 
-                        "id":id, 
-                        "nombre":"EL IGNA", 
-                        "edad":26, 
-                        "email":"email@gmail.com",
-                        "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
-                        }
-                }
-               
-            console.log ("Respuesta del GesPermisosclear ",{respuesta});
-
-            // Convierte el objeto en una cadena JSON
-            const respuestaJSON = JSON.stringify(respuesta);
-
-            // Establece el encabezado "Content-Type" y envía la respuesta JSON
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(respuestaJSON);
-            return
-        }
-    } 
+   
     else {
         console.log('peticion 3')
         res.writeHead(404, { 'Content-Type': 'text/plain' });
