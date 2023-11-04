@@ -68,11 +68,51 @@ const app = http.createServer(async(req, res) => {
             }
             return
         }
+    }  
+
+    if (req.method === 'POST' && parsedUrl.pathname === `/api/piso/`) {
+        const piso = queryParams.piso; // Accede al parámetro de consulta "piso"
+        if (piso) {
+            try {
+                const ascensorResponse = await fetch(`http://localhost:4500/api/selectorAscensor/?piso=${piso}`, {
+                    method: 'POST'
+                });
+
+                if (!ascensorResponse.ok) {
+                    // esto podria meterlo dentro un unico writeHead() y res.end()
+                    if (ascensorResponse.status === 404) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'El ID no existe' }));
+                    } else if (ascensorResponse.status === 500) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Error interno del servidor' }));
+                    } else {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Error en la solicitud' }));
+                    }
+                } else {
+                    // Si llega a este punto, solicitud exitosa
+                    const ascensor = await ascensorResponse.json();
+
+                    let as = ascensor.id
+
+                    const respuesta = { as };
+                    const respuestaJSON = JSON.stringify(respuesta);
+    
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(respuestaJSON);
+                }
+            } catch (error) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('Piso no existe!\n');
+            }
+        }
     } else {
+        console.log("falla")
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Pagina no encontrada\n');
-        return
-    }  
+    }
+    return 
 });
 
 const PORT = 3001;
