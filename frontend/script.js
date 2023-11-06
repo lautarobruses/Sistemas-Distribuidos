@@ -5,7 +5,10 @@ const estados = {
     INICIO: 'Inicio',
     PISOS: 'Pisos',
     FINAL: 'Final',
+    ERROR: 'Error'
 };
+
+const TIEMPO_ESPERA = 5000
 
 const tecladoPisos = document.getElementById('tecladoPisos');
 const tecladoNumerico = document.getElementById('tecladoNumerico');
@@ -15,6 +18,7 @@ const btnNumeros = document.querySelectorAll('.numBtn');
 const divPantallaInicio = document.getElementById('pantallaInicio');
 const divPantalla = document.getElementById('pantalla');
 const divPantallaAscensor = document.getElementById('pantallaAscensor');
+const divPantallaError = document.getElementById('pantallaError');
 
 let display = document.getElementById('display');
 
@@ -63,6 +67,26 @@ const cambiarPantalla = () => {
                 divPantalla.removeChild(divPantalla.firstChild); // Elimina el primer hijo hasta que no queden más
             }
             break;
+        default:
+            //Limpio todas las pantallas
+            while (divPantallaAscensor.firstChild) {
+                divPantallaAscensor.removeChild(divPantallaAscensor.firstChild);
+            }
+            display.value = ""
+            divPantallaInicio.style.display = "flex"
+
+            divPantallaInicio.style.display = "none"
+
+            while (divPantalla.firstChild) {
+                divPantalla.removeChild(divPantalla.firstChild);
+            }
+            //Muestro la pantalla ERROR
+            divPantallaError.style.display = "flex"
+
+            setTimeout(() => {
+                divPantallaError.style.display = "none"
+                divPantallaError.removeChild(divPantallaError.lastChild);
+            }, TIEMPO_ESPERA)
     }
 }
 
@@ -70,9 +94,11 @@ const activarBtnAceptar = (activo) => {
     if (activo) {
         toggleButton.classList.remove('not-available');
         toggleButton.classList.add('available');
+        toggleButton.disabled = false;
     } else {
         toggleButton.classList.remove('available');
         toggleButton.classList.add('not-available');
+        toggleButton.disabled = true;
     }
 }
 
@@ -85,17 +111,6 @@ const limpiarBtnPisos = () => {
 }
 
 const mostrarDatosVisitante = (datosVisitante) => {
-    const datosJSON = {
-        "id":"A001",
-        "nombre":"Lautaro Nahuel Bruses",
-        "edad":25,
-        "email":"lautarobruses@gmail.com",
-        "pisos_permitidos":[1,3], //por si puede entrar a mas de una habitacion
-        "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string
-        "fecha_checkOut":"2023-09-15T23:09:40.880Z"
-    };
-    console.log(datosVisitante);
-    
     const idVisitante = document.createElement('h2');
     idVisitante.textContent = '#' + datosVisitante.id;
     idVisitante.className = 'textoSecundario';
@@ -163,9 +178,7 @@ const habilitarPisos = (pisosHabilitados) => {
     });
 }
 
-const mostrarAscensor = (nroAscensor) => { //falta pasar el JSON como parametro
-    console.log(nroAscensor);
-    
+const mostrarAscensor = (nroAscensor) => {
     const texto = document.createElement('h2');
     texto.textContent = 'Ascensor';
     texto.className = 'textoSecundario';
@@ -180,8 +193,13 @@ const mostrarAscensor = (nroAscensor) => { //falta pasar el JSON como parametro
     divPantallaAscensor.appendChild(ascensor);
 }
 
-const mostrarMensajeError = () => {
-    
+const mostrarMensajeError = (mensaje) => {
+    const mensajeError = document.createElement('h2');
+    mensajeError.textContent = mensaje;
+    mensajeError.className = 'textoSecundario';
+    mensajeError.id = 'mensajeError';
+
+    divPantallaError.appendChild(mensajeError);
 }
 
 //================================ LISTENERS ===========================================
@@ -227,7 +245,13 @@ toggleButton.addEventListener('click', async function() {
                 mostrarDatosVisitante(infoVisitante)
                 habilitarPisos(pisosHabilitados)
             } else {
-                //MOSTRAR MENSAJE DE ERROR
+                //CASO ERROR
+                cambiarEstado(estados.ERROR)
+                mostrarMensajeError(responseID.error)
+                habilitarPisos([])
+                setTimeout(() => {
+                    cambiarEstado(estados.INICIO)
+                }, TIEMPO_ESPERA)
             }
             break;
         case "Pisos":
@@ -247,9 +271,15 @@ toggleButton.addEventListener('click', async function() {
     
                 setTimeout(() => {
                     cambiarEstado(estados.INICIO)
-                }, 3000)
+                }, TIEMPO_ESPERA)
             } else {
-                //MOSTRAR MENSAJE DE ERROR
+                //CASO ERROR
+                cambiarEstado(estados.ERROR)
+                mostrarMensajeError(responsePiso.error)
+                habilitarPisos([])
+                setTimeout(() => {
+                    cambiarEstado(estados.INICIO)
+                }, TIEMPO_ESPERA)
             }
             break;
     }
