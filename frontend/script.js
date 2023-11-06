@@ -248,25 +248,6 @@ toggleButton.addEventListener('click', function() {
 
             break;
     }
-
-    // const idValue = "123"; // Establece el valor del id que deseas enviar
-
-    // fetch(`http://localhost:3000/api/user/?id=${idValue}`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     // Mostrar la respuesta en el div con id 'responseDiv'
-    //     const responseDiv = document.getElementById('responseDiv');
-    //     responseDiv.textContent = 'Respuesta del servidor: ' + JSON.stringify(data);
-    //     cambiarPantalla(!condicion)
-    // })
-    // .catch(error => {
-    //     console.error('Error:', error);
-    // });
 });
 
 
