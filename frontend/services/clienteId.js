@@ -9,12 +9,32 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         fetch(`http://localhost:3000/api/user/?id=${datos.id}`, {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json' // Ajusta los encabezados según sea necesario
             },
-            body: JSON.stringify(datos)
         })
+        .then(response => response.json())
+        .then(data => {
+            // Maneja la respuesta de la solicitud aquí
+            respuestaDiv.innerHTML = `Respuesta del servidor: ${JSON.stringify(data)}`;
+        })
+        .catch(error => {
+            // Maneja cualquier error que ocurra durante la solicitud
+            respuestaDiv.innerHTML = `Error: ${error.message}`;
+        });
+    });
+
+    enviarBtn.addEventListener('click', function () {
+        const datos = {"piso":piso};
+
+        fetch(`http://localhost:3000/api/piso/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datos),
+            })
         .then(response => response.json())
         .then(data => {
             // Maneja la respuesta de la solicitud aquí
