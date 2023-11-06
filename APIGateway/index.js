@@ -44,6 +44,7 @@ const app = http.createServer(async (req, res) => {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('el ID no existe!\n');
             }
+            return
         }
     }
 

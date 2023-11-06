@@ -64,12 +64,12 @@ const app = http.createServer((req, res) => {
             else{
                 respuesta = { 
                         "id":id, 
-                        "nombre":"EL IGNA", 
+                        "nombre":"EL USUARIO NO EXISTE", 
                         "edad":26, 
                         "email":"email@gmail.com",
                         "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
-                        }
                 }
+            }
                
             console.log ("Respuesta del GesPermisosclear ",{respuesta});
 

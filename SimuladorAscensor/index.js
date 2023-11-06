@@ -36,12 +36,12 @@ const server = http.createServer((req, res) => {
                 var respuesta;
 
                 if (piso < '3') 
-                    respuesta = {"id":1};
+                    respuesta = {"nombre":"A"};
                 else
                     if (piso >= '7')
-                        respuesta = {"id":2};
+                        respuesta = {"nombre":"B"};
                     else
-                    respuesta = {"id":3};
+                    respuesta = {"nombre":"c"};
 
                 // Convierte el objeto en una cadena JSON
                 const respuestaJSON = JSON.stringify(respuesta);

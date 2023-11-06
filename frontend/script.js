@@ -1,3 +1,6 @@
+import { enviarPiso } from './services/selectPiso.js';
+import { solicitarDatosVisitante } from './services/clienteId.js';
+
 const estados = {
     INICIO: 'Inicio',
     PISOS: 'Pisos',
@@ -26,15 +29,8 @@ const cambiarEstado = (nuevoEstado) => {
         case "Inicio":
             activarBtnAceptar(true)
             break;
-        case "Pisos":
+        default:
             activarBtnAceptar(false)
-            const pisosHabilitados = [1, 3, 6, 8, 11, 12];
-            habilitarPisos(pisosHabilitados)
-            break;
-        case "Final":
-            activarBtnAceptar(false)
-            habilitarPisos([])
-            break;
     }
 }
 
@@ -61,13 +57,11 @@ const cambiarPantalla = () => {
             break;
         case "Pisos":
             divPantallaInicio.style.display = "none"
-            mostrarDatosVisitante()
             break;
         case "Final":
             while (divPantalla.firstChild) {
                 divPantalla.removeChild(divPantalla.firstChild); // Elimina el primer hijo hasta que no queden más
             }
-            mostrarAscensor("A")
             break;
     }
 }
@@ -90,7 +84,7 @@ const limpiarBtnPisos = () => {
     });
 }
 
-const mostrarDatosVisitante = () => { //falta pasar el JSON como parametro
+const mostrarDatosVisitante = (datosVisitante) => {
     const datosJSON = {
         "id":"A001",
         "nombre":"Lautaro Nahuel Bruses",
@@ -100,21 +94,22 @@ const mostrarDatosVisitante = () => { //falta pasar el JSON como parametro
         "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string
         "fecha_checkOut":"2023-09-15T23:09:40.880Z"
     };
+    console.log(datosVisitante);
     
     const idVisitante = document.createElement('h2');
-    idVisitante.textContent = '#' + datosJSON.id;
+    idVisitante.textContent = '#' + datosVisitante.id;
     idVisitante.className = 'textoSecundario';
 
     const nombreCompleto = document.createElement('h1');
-    nombreCompleto.textContent = datosJSON.nombre.toUpperCase();
+    nombreCompleto.textContent = datosVisitante.nombre.toUpperCase();
     nombreCompleto.className = 'textoPrincipal';
 
     const edad = document.createElement('h2');
-    edad.textContent = datosJSON.edad + ' años';
+    edad.textContent = datosVisitante.edad + ' años';
     edad.className = 'textoSecundario';
 
     const email = document.createElement('h2');
-    email.textContent = datosJSON.email;
+    email.textContent = datosVisitante.email;
     email.className = 'textoSecundario';
 
     // const fechaCheckIn = formatearFechaEnLenguajeNatural(datosJSON.fecha_checkIn)
@@ -169,6 +164,8 @@ const habilitarPisos = (pisosHabilitados) => {
 }
 
 const mostrarAscensor = (nroAscensor) => { //falta pasar el JSON como parametro
+    console.log(nroAscensor);
+    
     const texto = document.createElement('h2');
     texto.textContent = 'Ascensor';
     texto.className = 'textoSecundario';
@@ -181,6 +178,10 @@ const mostrarAscensor = (nroAscensor) => { //falta pasar el JSON como parametro
 
     divPantallaAscensor.appendChild(texto);
     divPantallaAscensor.appendChild(ascensor);
+}
+
+const mostrarMensajeError = () => {
+    
 }
 
 //================================ LISTENERS ===========================================
@@ -211,46 +212,45 @@ btnNumeros.forEach(boton => {
     });
 });
 
-toggleButton.addEventListener('click', function() {
+toggleButton.addEventListener('click', async function() {
     switch (estadoActual) {
         case "Inicio":
             const ID = display.value
-            console.log(ID);
-
-            //ENVIAR ID
-
-            //RECIBO PERMISOS 
-            //RECIBO INFO
-
-            //CASO EXITO
-            cambiarEstado(estados.PISOS);
-        
-            //CASO ERROR
-
+    
+            const responseID = await solicitarDatosVisitante(ID)
+            if (responseID && !responseID.error) {
+                const pisosHabilitados = responseID.pisos
+                const infoVisitante = responseID.informacion
+    
+                //CASO EXITO
+                cambiarEstado(estados.PISOS);
+                mostrarDatosVisitante(infoVisitante)
+                habilitarPisos(pisosHabilitados)
+            } else {
+                //MOSTRAR MENSAJE DE ERROR
+            }
             break;
         case "Pisos":
             const botonSeleccionado = document.querySelector('.pisoBtn.selected ');
 
-            const pisoSeleccionado = botonSeleccionado.textContent;
-            console.log(pisoSeleccionado)
+            const pisoSeleccionado = botonSeleccionado.textContent.match(/\d+/)[0];
 
-            //ENVIAR PISO SELECCIONADO
-            //OBTENGO NUMERO ASCENSOR
+            const responsePiso = await enviarPiso(pisoSeleccionado)
+
+            if (responsePiso && !responsePiso.error) {
+                const nombreAscensor = responsePiso.nombre
         
-            //CASO EXITO
-            cambiarEstado(estados.FINAL)
-
-            setTimeout(() => {
-                cambiarEstado(estados.INICIO)
-            }, 3000)
-
-            //CASO ERROR
-
+                //CASO EXITO
+                cambiarEstado(estados.FINAL)
+                mostrarAscensor(nombreAscensor)
+                habilitarPisos([])
+    
+                setTimeout(() => {
+                    cambiarEstado(estados.INICIO)
+                }, 3000)
+            } else {
+                //MOSTRAR MENSAJE DE ERROR
+            }
             break;
     }
 });
-
-
-
-
-

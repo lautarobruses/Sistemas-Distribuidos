@@ -108,9 +108,9 @@ const app = http.createServer(async(req, res) => {
                     // Si llega a este punto, solicitud exitosa
                     const ascensor = await ascensorResponse.json();
 
-                    let id = ascensor.id
+                    let nombre = ascensor.nombre
 
-                    const respuesta = { id };
+                    const respuesta = { nombre };
                     const respuestaJSON = JSON.stringify(respuesta);
                     console.log ("Respuesta del Backend "+ respuestaJSON);
     
@@ -145,30 +145,3 @@ const cors = (res) =>{
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
-
-// no los vamos a usar mas. 
-const llamaGestionPermisos = async (id) => {
-    try {
-        // CAMBIAR LA URL
-        const response = await fetch(`http://localhost:5000/visitantes/permisos?id=${id}`, {
-            method: 'GET'
-        });
-        return await response.json();
-
-    } catch (error) {
-        throw new Error(`Error: ${error.message}`)
-    }
-}
-
-const llamaInformacionUsuario = async (id) => {
-    try {
-        const response = await fetch(`http://localhost:5000/visitantes/informacion?id=${id}`, {
-            method: 'GET'
-        });
-        return await response.json();
-    } catch (error) {
-        throw new Error(`Error: ${error.message}`)
-    }
-}
-
-
