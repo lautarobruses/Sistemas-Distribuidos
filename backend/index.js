@@ -58,7 +58,8 @@ const app = http.createServer(async(req, res) => {
                     let arrayPisos = pisos.pisos
                     const respuesta = { pisos:arrayPisos, informacion };
                     const respuestaJSON = JSON.stringify(respuesta);
-    
+                    console.log(respuesta);
+
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(respuestaJSON);
                 }

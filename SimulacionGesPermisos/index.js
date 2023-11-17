@@ -29,12 +29,12 @@ const app = http.createServer((req, res) => {
             if (id == '333') 
                 respuesta = {pisos:[2,5,7]};
             else
-                if (id == '444')
+                if (id =='27 AB E0 C6' )
                     respuesta = {pisos:[3,4,8]};
                 else
                 respuesta = {pisos:[0]};
                
-            console.log ("Respuesta del GesPermisosclear "+respuesta);
+            console.log ("Respuesta del GesPermisosclear ",{respuesta});
 
             // Convierte el objeto en una cadena JSON
             const respuestaJSON = JSON.stringify(respuesta);
@@ -61,16 +61,27 @@ const app = http.createServer((req, res) => {
                     "email":"email@gmail.com", "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
                     };
                 }
-            else{
-                respuesta = { 
+            else
+                if (id =="27 AB E0 C6" ){
+                    respuesta = { 
+                        "id":11, 
+                        "nombre":"LA TARJETAAAAA", 
+                        "edad":11, 
+                        "email":"email@gmail.com",
+                        "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
+                    };
+                }
+                else
+                {
+                    respuesta = { 
                         "id":id, 
                         "nombre":"EL USUARIO NO EXISTE", 
                         "edad":26, 
                         "email":"email@gmail.com",
                         "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
+                    };
                 }
-            }
-               
+            
             console.log ("Respuesta del GesPermisosclear ",{respuesta});
 
             // Convierte el objeto en una cadena JSON

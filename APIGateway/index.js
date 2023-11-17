@@ -1,6 +1,49 @@
 const http = require('http')
 const url = require('url')
 
+const mqtt = require("mqtt");
+const client = mqtt.connect("mqtt://test.mosquitto.org");
+
+client.on("connect", () => {
+  client.subscribe("SistemasDistribuidos2023", (err) => {
+    if (err)
+        console.error(err);
+    else
+        console.log('suscripto correctamente a topico MQTT')
+  });
+});
+
+client.on("message", async(topic, message) => {
+ 
+  const  mes = message.toString();
+  console.log(mes);
+  
+  try {
+    response = await fetch(`http://localhost:3001/api/user/?id=${mes}`, {
+        method: 'GET'
+    });
+    if (!response.ok){
+        console.log('error en comunicacion')
+    }
+    else{
+        info = await response.json() 
+        console.log("RESPUESTA DE API ",info.informacion.nombre);
+        const respuestaJSON = JSON.stringify(info);
+    }
+} catch (error) {
+    console.log("TARJETA INVALIDA");
+}
+});
+
+client.on("error", (error) => {                           // Manejo de errores
+    console.error("Error en el cliente MQTT:", error);
+  });
+  
+  client.on("close", () => {                              // Manejo de desconexión
+    console.log("Desconectado del servidor MQTT");
+  });
+
+
 const app = http.createServer(async (req, res) => {
     cors(res)
 
