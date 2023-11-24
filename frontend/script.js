@@ -9,6 +9,7 @@ const estados = {
 };
 
 const TIEMPO_ESPERA = 5000
+const TIEMPO_PREGUNTA = 1000
 
 const tecladoPisos = document.getElementById('tecladoPisos');
 const tecladoNumerico = document.getElementById('tecladoNumerico');
@@ -286,3 +287,41 @@ toggleButton.addEventListener('click', async function() {
             break;
     }
 });
+
+//================================ MAIN ===========================================
+
+const ejecutarCodigoConstante = async () => {
+    setInterval(async () => {
+        try {
+            const responsePreguntaId = await preguntarIdVisitante();
+
+            console.log(responsePreguntaId);
+            if (responsePreguntaId) {
+                const RFID = responsePreguntaId.id;
+                const responseID = await solicitarDatosVisitante(RFID);
+                if (responseID && !responseID.error) {
+                    const pisosHabilitados = responseID.pisos;
+                    const infoVisitante = responseID.informacion;
+
+                    // CASO EXITO
+                    cambiarEstado(estados.PISOS);
+                    mostrarDatosVisitante(infoVisitante);
+                    habilitarPisos(pisosHabilitados);
+                } else {
+                    // CASO ERROR
+                    cambiarEstado(estados.ERROR);
+                    const mensajeError = responseID ? responseID.error : "El servidor no responde";
+                    mostrarMensajeError(mensajeError);
+                    habilitarPisos([]);
+                    setTimeout(() => {
+                        cambiarEstado(estados.INICIO);
+                    }, TIEMPO_ESPERA);
+                }
+            }
+        } catch (error) {
+            console.log("No se apoyo tarjeta");
+        }
+    }, TIEMPO_PREGUNTA);
+}
+
+ejecutarCodigoConstante();
