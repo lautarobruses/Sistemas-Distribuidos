@@ -1,9 +1,9 @@
 const http = require('http');
 const url = require('url')
 
-const PUERTO_GESTION_VISITANTE = 5000
-const PUERTO_GESTION_PERMISOS = 5000
-const PUERTO_SELECTOR_ASCENSOR = 6000
+const PUERTO_GESTION_VISITANTE = 8002
+const PUERTO_GESTION_PERMISOS = 8003
+const PUERTO_SELECTOR_ASCENSOR = 8080
 
 const app = http.createServer(async(req, res) => {
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
@@ -19,17 +19,17 @@ const app = http.createServer(async(req, res) => {
         res.end();
         return;
     }
-    
+     
     if (req.method === 'GET' && parsedUrl.pathname === `/api/user/`) {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
             try {
                 console.log(id)
-                const pisosResponse = await fetch(`http://localhost:${PUERTO_GESTION_PERMISOS}/visitantes/${id}/permisos`, {
+                const pisosResponse = await fetch(`http://10.2.212.10:${PUERTO_GESTION_PERMISOS}/visitantes/${id}/permisos`, {
                     method: 'GET'
                 });
-                const informacionResponse = await fetch(`http://localhost:${PUERTO_GESTION_VISITANTE}/visitantes/${id}/informacion`, {
-                    method: 'GET'
+                const informacionResponse = await fetch(`http://10.2.212.10:${PUERTO_GESTION_VISITANTE}/visitantes/${id}/info`, {
+                    method: 'GET'  
                 });
 
                 if (!pisosResponse.ok || !informacionResponse.ok) {
@@ -39,36 +39,39 @@ const app = http.createServer(async(req, res) => {
                         res.end(JSON.stringify({ error: 'El ID no existe' }));
                     } else if (pisosResponse.status === 500 || informacionResponse.status === 500) {
                         res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Error interno del servidor' }));
+                        res.end(JSON.stringify({ error: 'Error interno del servidor' })); 
                     } else {
                         res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Error en la solicitud' }));
+                        res.end(JSON.stringify({ error: 'Error en la solicitud' })); 
                     }
-                } else {
+                } else {  
                     // Si llega a este punto, ambas solicitudes fueron exitosas
                     const pisos = await pisosResponse.json();
                     const informacion = await informacionResponse.json();
 
-                    let arrayPisos = pisos.pisos
+
+                    console.log('LA RESPUESTA DE PISOS ES',pisos)
+                    let arrayPisos = pisos.pisos_permitidos
                     const respuesta = { pisos:arrayPisos, informacion };
-                    const respuestaJSON = JSON.stringify(respuesta);
+                    const respuestaJSON = JSON.stringify(respuesta); 
                     console.log(respuesta);
 
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(respuestaJSON);
-                }
+                    res.end(respuestaJSON); 
+                } 
             } catch (error) {
+                console.log(error)
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('el ID no existe!\n');
             }
             return
-        }
+        } 
     }  
 
     if (req.method === 'POST' && parsedUrl.pathname === `/api/piso/`) {
         var requestBody = '';
 
-        req.on('data', (chunk) => {
+        req.on('data', (chunk) => { 
         requestBody += chunk;  // Recopila los datos del cuerpo de la solicitud
         });
 
@@ -77,8 +80,13 @@ const app = http.createServer(async(req, res) => {
                 console.log ("Petición al BackEnd "+ requestBody);
                 const requestData = JSON.parse(requestBody);
                 const piso = requestData.piso;
-                const datos = {"piso":piso};
-                const ascensorResponse = await fetch(`http://localhost:${PUERTO_SELECTOR_ASCENSOR}/api/selectorAscensor`, {
+                const datos = {
+                    "piso_origen":0,
+                    "piso_destino":parseInt(piso)
+                    };
+                console.log(piso)
+                console.log(datos)
+                const ascensorResponse = await fetch(`http://10.2.210.241:${PUERTO_SELECTOR_ASCENSOR}/api/selectorAscensor`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -298,9 +298,8 @@ toggleButton.addEventListener('click', async function() {
 setInterval(async () => {
     try {
         const responsePreguntaId = await preguntarIdVisitante();
-
+        console.log(responsePreguntaId);
         if (responsePreguntaId) {
-            detenerPooling()
             const pisosHabilitados = responsePreguntaId.pisos;
             const infoVisitante = responsePreguntaId.informacion;
 
@@ -310,7 +309,8 @@ setInterval(async () => {
             habilitarPisos(pisosHabilitados);
         }
     } catch (error) {
-        //CASO ERROR
+        //CASO ERROR 
+        console.log(error);
         cambiarEstado(estados.ERROR)
         const mensajeError = "El servidor no funciona"
         mostrarMensajeError(mensajeError)
