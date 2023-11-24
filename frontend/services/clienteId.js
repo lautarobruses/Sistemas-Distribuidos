@@ -11,8 +11,8 @@ export const solicitarDatosVisitante = (id) => {
     });
 }
 
-export const preguntarIdVisitante = (id) => {
-    return fetch(`http://localhost:3001/api/lectortarjeta`, {
+export const preguntarIdVisitante = () => {
+    return fetch(`http://localhost:3000/api/lectortarjeta`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

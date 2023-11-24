@@ -26,7 +26,7 @@ const app = http.createServer((req, res) => {
            
             var respuesta;
 
-            if (id == '333') 
+            if (id == 'A003') 
                 respuesta = {pisos:[2,5,7]};
             else
                 if (id =='27 AB E0 C6' )
@@ -49,11 +49,11 @@ const app = http.createServer((req, res) => {
         const id = queryParams.id; // Accede al parámetro de consulta "id"
         if (id) {
 
-            console.log('recibe peticion 2')
+            console.log(id)
            
             var respuesta;
 
-            if (id == '333') {
+            if (id == 'A003') {
                 respuesta = { 
                     "id":id, 
                     "nombre":"Nombre Completo", 
@@ -92,8 +92,7 @@ const app = http.createServer((req, res) => {
             res.end(respuestaJSON);
             return
         }
-    } 
-    else {
+    } else {
         console.log('peticion 3')
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Pagina no encontrada\n');

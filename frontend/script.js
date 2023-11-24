@@ -1,5 +1,5 @@
 import { enviarPiso } from './services/selectPiso.js';
-import { solicitarDatosVisitante } from './services/clienteId.js';
+import { solicitarDatosVisitante, preguntarIdVisitante } from './services/clienteId.js';
 
 const estados = {
     INICIO: 'Inicio',
@@ -9,7 +9,7 @@ const estados = {
 };
 
 const TIEMPO_ESPERA = 5000
-const TIEMPO_PREGUNTA = 1000
+const TIEMPO_PREGUNTA = 2000
 
 const tecladoPisos = document.getElementById('tecladoPisos');
 const tecladoNumerico = document.getElementById('tecladoNumerico');
@@ -24,6 +24,8 @@ const divPantallaError = document.getElementById('pantallaError');
 let display = document.getElementById('display');
 
 let estadoActual = estados.INICIO;
+
+let intervalo = null
 
 //================================ FUNCIONES ===========================================
 const cambiarEstado = (nuevoEstado) => {
@@ -54,6 +56,7 @@ const cambiarTeclado = () => {
 const cambiarPantalla = () => {
     switch (estadoActual) {
         case "Inicio":
+            divPantallaAscensor.style.display = "none"
             while (divPantallaAscensor.firstChild) {
                 divPantallaAscensor.removeChild(divPantallaAscensor.firstChild); // Elimina el primer hijo hasta que no queden más
             }
@@ -68,19 +71,19 @@ const cambiarPantalla = () => {
                 divPantalla.removeChild(divPantalla.firstChild); // Elimina el primer hijo hasta que no queden más
             }
             break;
-        default:
+        default: //Error
             //Limpio todas las pantallas
             while (divPantallaAscensor.firstChild) {
                 divPantallaAscensor.removeChild(divPantallaAscensor.firstChild);
             }
             display.value = ""
-            divPantallaInicio.style.display = "flex"
 
             divPantallaInicio.style.display = "none"
 
             while (divPantalla.firstChild) {
                 divPantalla.removeChild(divPantalla.firstChild);
             }
+            
             //Muestro la pantalla ERROR
             divPantallaError.style.display = "flex"
 
@@ -192,6 +195,8 @@ const mostrarAscensor = (nroAscensor) => {
 
     divPantallaAscensor.appendChild(texto);
     divPantallaAscensor.appendChild(ascensor);
+
+    divPantallaAscensor.style.display = "flex"
 }
 
 const mostrarMensajeError = (mensaje) => {
@@ -234,7 +239,7 @@ btnNumeros.forEach(boton => {
 toggleButton.addEventListener('click', async function() {
     switch (estadoActual) {
         case "Inicio":
-            const ID = display.value
+            const ID = "A" + display.value //Gestionar A
     
             const responseID = await solicitarDatosVisitante(ID)
             if (responseID && !responseID.error) {
@@ -262,10 +267,10 @@ toggleButton.addEventListener('click', async function() {
             const pisoSeleccionado = botonSeleccionado.textContent.match(/\d+/)[0];
 
             const responsePiso = await enviarPiso(pisoSeleccionado)
-
+            
             if (responsePiso && !responsePiso.error) {
                 const nombreAscensor = responsePiso.nombre
-        
+                console.log(nombreAscensor);
                 //CASO EXITO
                 cambiarEstado(estados.FINAL)
                 mostrarAscensor(nombreAscensor)
@@ -290,38 +295,31 @@ toggleButton.addEventListener('click', async function() {
 
 //================================ MAIN ===========================================
 
-const ejecutarCodigoConstante = async () => {
-    setInterval(async () => {
-        try {
-            const responsePreguntaId = await preguntarIdVisitante();
+setInterval(async () => {
+    try {
+        const responsePreguntaId = await preguntarIdVisitante();
 
-            console.log(responsePreguntaId);
-            if (responsePreguntaId) {
-                const RFID = responsePreguntaId.id;
-                const responseID = await solicitarDatosVisitante(RFID);
-                if (responseID && !responseID.error) {
-                    const pisosHabilitados = responseID.pisos;
-                    const infoVisitante = responseID.informacion;
+        if (responsePreguntaId) {
+            detenerPooling()
+            const pisosHabilitados = responsePreguntaId.pisos;
+            const infoVisitante = responsePreguntaId.informacion;
 
-                    // CASO EXITO
-                    cambiarEstado(estados.PISOS);
-                    mostrarDatosVisitante(infoVisitante);
-                    habilitarPisos(pisosHabilitados);
-                } else {
-                    // CASO ERROR
-                    cambiarEstado(estados.ERROR);
-                    const mensajeError = responseID ? responseID.error : "El servidor no responde";
-                    mostrarMensajeError(mensajeError);
-                    habilitarPisos([]);
-                    setTimeout(() => {
-                        cambiarEstado(estados.INICIO);
-                    }, TIEMPO_ESPERA);
-                }
-            }
-        } catch (error) {
-            console.log("No se apoyo tarjeta");
+            // CASO EXITO
+            cambiarEstado(estados.PISOS);
+            mostrarDatosVisitante(infoVisitante);
+            habilitarPisos(pisosHabilitados);
         }
-    }, TIEMPO_PREGUNTA);
-}
+    } catch (error) {
+        //CASO ERROR
+        cambiarEstado(estados.ERROR)
+        const mensajeError = "El servidor no funciona"
+        mostrarMensajeError(mensajeError)
+        habilitarPisos([])
+        setTimeout(() => {
+            cambiarEstado(estados.INICIO)
+        }, TIEMPO_ESPERA)
 
-ejecutarCodigoConstante();
+        console.log("No se encontro tarjeta");
+    }
+}, TIEMPO_PREGUNTA);
+

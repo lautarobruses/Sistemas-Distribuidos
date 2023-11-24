@@ -1,6 +1,10 @@
 const http = require('http');
 const url = require('url')
 
+const PUERTO_GESTION_VISITANTE = 5000
+const PUERTO_GESTION_PERMISOS = 5000
+const PUERTO_SELECTOR_ASCENSOR = 6000
+
 const app = http.createServer(async(req, res) => {
     const parsedUrl = url.parse(req.url, true); // Analiza la URL y extrae los parámetros de consulta
     const queryParams = parsedUrl.query
@@ -21,10 +25,10 @@ const app = http.createServer(async(req, res) => {
         if (id) {
             try {
                 console.log(id)
-                const pisosResponse = await fetch(`http://localhost:5000/visitantes/permisos?id=${id}`, {
+                const pisosResponse = await fetch(`http://localhost:${PUERTO_GESTION_PERMISOS}/visitantes/${id}/permisos`, {
                     method: 'GET'
                 });
-                const informacionResponse = await fetch(`http://localhost:5000/visitantes/informacion?id=${id}`, {
+                const informacionResponse = await fetch(`http://localhost:${PUERTO_GESTION_VISITANTE}/visitantes/${id}/informacion`, {
                     method: 'GET'
                 });
 
@@ -45,16 +49,6 @@ const app = http.createServer(async(req, res) => {
                     const pisos = await pisosResponse.json();
                     const informacion = await informacionResponse.json();
 
-                    // let pisos = {
-                    //     pisos:[1,2,4]
-                    // }
-                    // let informacion = 
-                    //     { 
-                    //         "id":"A001", 
-                    //         "nombre":"Nombre Completo", 
-                    //         "edad":25, 
-                    //         "email":"email@gmail.com", "fecha_checkIn":"2023-09-13T23:09:40.880Z", //formato ISO string "fecha_checkOut":"2023-09-15T23:09:40.880Z" }, 
-                    //     }
                     let arrayPisos = pisos.pisos
                     const respuesta = { pisos:arrayPisos, informacion };
                     const respuestaJSON = JSON.stringify(respuesta);
@@ -79,18 +73,17 @@ const app = http.createServer(async(req, res) => {
         });
 
         req.on('end', async() => {
-
             try {
                 console.log ("Petición al BackEnd "+ requestBody);
                 const requestData = JSON.parse(requestBody);
                 const piso = requestData.piso;
                 const datos = {"piso":piso};
-                const ascensorResponse = await fetch(`http://localhost:4500/api/selectorAscensor/`, {
+                const ascensorResponse = await fetch(`http://localhost:${PUERTO_SELECTOR_ASCENSOR}/api/selectorAscensor`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                      },
-                      body:JSON.stringify(datos),
+                    },
+                    body:JSON.stringify(datos),
                 });
 
                 if (!ascensorResponse.ok) {
@@ -113,6 +106,7 @@ const app = http.createServer(async(req, res) => {
 
                     const respuesta = { nombre };
                     const respuestaJSON = JSON.stringify(respuesta);
+
                     console.log ("Respuesta del Backend "+ respuestaJSON);
     
                     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -136,7 +130,6 @@ const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Backend HTTP escuchando en el puerto ${PORT}`);
 });
-
 
 // no es necesario cors ya que el navegador no le pega al back
 
