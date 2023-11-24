@@ -2,7 +2,11 @@ const http = require('http')
 const url = require('url')
 
 const mqtt = require("mqtt");
+const { log } = require('console');
 const client = mqtt.connect("mqtt://test.mosquitto.org");
+
+var booleanRFID=false;
+var idRFID;
 
 client.on("connect", () => {
   client.subscribe("SistemasDistribuidos2023", (err) => {
@@ -13,26 +17,23 @@ client.on("connect", () => {
   });
 });
 
-client.on("message", async(topic, message) => {
+client.on("message", async(topic, message) => {// alguien apoyo una tarjeta
  
   const  mes = message.toString();
   console.log(mes);
-  
-  try {
-    response = await fetch(`http://localhost:3001/api/user/?id=${mes}`, {
-        method: 'GET'
-    });
-    if (!response.ok){
-        console.log('error en comunicacion')
-    }
-    else{
-        info = await response.json() 
-        console.log("RESPUESTA DE API ",info.informacion.nombre);
-        const respuestaJSON = JSON.stringify(info);
-    }
-} catch (error) {
-    console.log("TARJETA INVALIDA");
-}
+
+  console.log("HOLA");
+
+  idRFID=JSON.parse(mes);
+
+  console.log(idRFID);
+
+  console.log("1");
+
+  respuestaRFID=true;
+
+  console.log("El ID es:"+idRFID);
+
 });
 
 client.on("error", (error) => {                           // Manejo de errores
@@ -88,6 +89,37 @@ const app = http.createServer(async (req, res) => {
                 res.end('el ID no existe!\n');
             }
             return
+        }
+    }
+
+
+
+    if (req.method === 'GET' && parsedUrl.pathname === `/api/lectortarjeta`) {
+        if (!booleanRFID) {
+                try {
+                    response = await fetch(`http://localhost:3001/api/user/?id=${idRFID}`, {
+                        method: 'GET'
+                    });
+                    if (!response.ok){
+                        console.log('error')
+                        // pasamos el mismo error que nos tiro el back
+                        res.writeHead(response.status, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Error' }));
+                    }
+                    else{
+                        info = await response.json() 
+                        console.log("RESPUESTA DE API ",response);
+                        const respuestaJSON = JSON.stringify(info);
+                        // Establece el encabezado "Content-Type" y envía la respuesta JSON
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(respuestaJSON);
+                    }
+                } catch (error) {
+                    res.writeHead(404, { 'Content-Type': 'text/plain' });
+                    res.end('el ID no existe!\n');
+                }
+                booleanRFID=false;
+                return
         }
     }
 
