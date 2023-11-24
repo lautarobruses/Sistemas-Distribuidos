@@ -195,7 +195,7 @@ const mostrarAscensor = (nroAscensor) => {
 
 const mostrarMensajeError = (mensaje) => {
     const mensajeError = document.createElement('h2');
-    mensajeError.textContent = mensaje;
+    mensajeError.textContent = mensaje
     mensajeError.className = 'textoSecundario';
     mensajeError.id = 'mensajeError';
 
@@ -247,7 +247,8 @@ toggleButton.addEventListener('click', async function() {
             } else {
                 //CASO ERROR
                 cambiarEstado(estados.ERROR)
-                mostrarMensajeError(responseID.error)
+                const mensajeError = responseID ? responseID.error : "El servidor no responde"
+                mostrarMensajeError(mensajeError)
                 habilitarPisos([])
                 setTimeout(() => {
                     cambiarEstado(estados.INICIO)
@@ -275,7 +276,8 @@ toggleButton.addEventListener('click', async function() {
             } else {
                 //CASO ERROR
                 cambiarEstado(estados.ERROR)
-                mostrarMensajeError(responsePiso.error)
+                const mensajeError = responsePiso ? responsePiso.error : "El servidor no responde"
+                mostrarMensajeError(mensajeError)
                 habilitarPisos([])
                 setTimeout(() => {
                     cambiarEstado(estados.INICIO)
