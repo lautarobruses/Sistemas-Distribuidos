@@ -1,30 +1,28 @@
 #include <SPI.h>
 #include <MFRC522.h>
+#include <PubSubClient.h>
+#include <WiFi.h>
+
 #define RST_PIN         16          // Configurable, see typical pin layout above
 #define SS_PIN          5         // Configurable, see typical pin layout above
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 
-#include <PubSubClient.h>
-#include <WiFi.h>
-
 // Update these with values suitable for your network.
-const char* ssid = "";
-const char* password = "";
-
-//const char* ssid = "Hands On IoT";
-//const char* password = "handsoniot";
+const char* ssid = "ClaroFibra";
+const char* password = "20222022";
 
 const char* mqtt_server = "test.mosquitto.org";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+//*****************************************************************************************//
 
 void setup_wifi() {
 
-  delay(10);
-  // We start by connecting to a WiFi network
+  delay(10);      // We start by connecting to a WiFi network
+  
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -44,6 +42,8 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+//*****************************************************************************************//
+
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -52,11 +52,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
-  
 }
 
-void reconnect() {
-  // Loop until we're reconnected
+//*****************************************************************************************//
+
+void reconnect() {                                 // Loop until we're reconnected
+  
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
@@ -79,6 +80,8 @@ void reconnect() {
   }
 }
 
+//*****************************************************************************************//
+
 void setup() {
 	Serial.begin(9600);		// Initialize serial communications with the PC
 	SPI.begin();			// Init SPI bus
@@ -89,35 +92,70 @@ void setup() {
   client.setCallback(callback);
 }
 
+//*****************************************************************************************//
+
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
   client.loop();
   
+  MFRC522::MIFARE_Key key;
+  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
+
+  byte block;
+  byte len = 18;
+  MFRC522::StatusCode status;
+
   if ( mfrc522.PICC_IsNewCardPresent()) {
     
     if ( mfrc522.PICC_ReadCardSerial()) {
-            
-      String user="";      
-      String uid_str="";
-      int num=0;
-      char buffer[2]="";
-      for (byte i = 0; i < mfrc522.uid.size; i++) {
-          
-          num=(int)mfrc522.uid.uidByte[i];
-          sprintf(buffer,"%02X",num);
-          uid_str.concat((String)buffer);
-          uid_str.concat(" ");
-         
-      } 
-      Serial.print("Card UID:");
-      Serial.println(uid_str);
-      const char* dat= uid_str.c_str();
 
-      client.publish("SistemasDistribuidos2023",dat);//uid_str.c_str() );
-      uid_str="";
+      Serial.println(F("**Card Detected:**"));
+
+      //mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
+
+      byte buffer1[18];
+      String json;
+      block=32;
+
+      while (block <= 38){
+        
+        status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid)); //line 834 of MFRC522.cpp file
+        if (status != MFRC522::STATUS_OK) {
+          Serial.print(F("Authentication failed: "));
+          Serial.println(mfrc522.GetStatusCodeName(status));
+          return;
+        }
+
+        status = mfrc522.MIFARE_Read(block, buffer1, &len);
+        if (status != MFRC522::STATUS_OK) {
+          Serial.print(F("Reading failed: "));
+          Serial.println(mfrc522.GetStatusCodeName(status));
+          return;
+        }
+        
+        block = block + 1;
+        if (block == 35){ 
+          block = 36;
+        }
+              
+        String aux = String((char*)buffer1);
+
+        aux.remove(16);
+        json.concat(aux);
+
+      }
+
+      const char* dat= json.c_str();
+
+      client.publish("SistemasDistribuidos2023",dat);
+
+      Serial.print(json);  
     
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+
     }
   }
   delay(1000);
